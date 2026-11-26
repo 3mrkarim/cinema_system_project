@@ -1,7 +1,20 @@
+import sqlite3 
+
+
+
 class DatabaseManager:
 
-    def add_movie(self, title):
+    def __init__(self, db_path="cinebook.db"):
+        self.conn = sqlite3.connect(db_path)
+        self.conn.execute("PRAGMA foreign_keys = ON")
 
-        # SQL INSERT operation here
+        with open("database/schema.sql", "r", encoding="utf-8") as f:
+            self.conn.executescript(f.read())
 
-        pass
+    def add_movie(self, title, genre, duration, description):
+        cursor = self.conn.execute(
+            "INSERT INTO Movies (title, genre, duration, description) VALUES (?, ?, ?, ?)",
+            (title, genre, duration, description),
+        )
+        self.conn.commit()
+        return cursor.lastrowid
